@@ -41,7 +41,7 @@ func (g *GeminiService) GetUserPrompt(
 	context *string,
 	diff string,
 	files []string,
-	// lastCommits []string,
+	lastCommits []string,
 ) (string, error) {
 	if *context != "" {
 		temp := fmt.Sprintf("Use the following context to understand intent: %s", *context)
@@ -68,14 +68,14 @@ func (g *GeminiService) GetUserPrompt(
 		os.Exit(1)
 	}
 
-	// lastCommitContext := ""
-	// if len(lastCommits) > 0 {
-	// 	lastCommitContext = fmt.Sprintf(
-	// 		"These are the last %d commit messages, if your proposed commit message is related to them, please make sure the commit message is consistent:\n%s\n\n",
-	// 		len(lastCommits),
-	// 		strings.Join(lastCommits, "\n"),
-	// 	)
-	// }
+	lastCommitContext := ""
+	if len(lastCommits) > 0 {
+		lastCommitContext = fmt.Sprintf(
+			"These are the last %d commit messages, if your proposed commit message is related to them, please make sure the commit message is consistent:\n%s\n\n",
+			len(lastCommits),
+			strings.Join(lastCommits, "\n"),
+		)
+	}
 
 	return fmt.Sprintf(
 		`Generate a concise git commit message written in past tense for the following code diff with the given specifications below:
@@ -91,11 +91,14 @@ Choose a type from the type-to-description JSON below that best describes the gi
 Neighboring files:
 %s
 
+%s
+
 Code diff:
 %s`,
 		*context,
 		conventionalTypes,
 		strings.Join(files, ", "),
+		lastCommitContext,
 		diff,
 	), nil
 }
@@ -107,7 +110,7 @@ func (g *GeminiService) AnalyzeChanges(
 	userContext *string,
 	relatedFiles *map[string]string,
 	modelName *string,
-	// lastCommits []string,
+	lastCommits []string,
 ) (string, error) {
 	// format relatedFiles to be dir : files
 	relatedFilesArray := make([]string, 0, len(*relatedFiles))
@@ -141,7 +144,7 @@ func (g *GeminiService) AnalyzeChanges(
 		Parts: []genai.Part{genai.Text(g.systemPrompt)},
 	}
 
-	userPrompt, err := g.GetUserPrompt(userContext, diff, relatedFilesArray)
+	userPrompt, err := g.GetUserPrompt(userContext, diff, relatedFilesArray, lastCommits)
 	if err != nil {
 		return "", err
 	}
