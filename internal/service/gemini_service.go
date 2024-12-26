@@ -24,9 +24,9 @@ func NewGeminiService() *GeminiService {
 	geminiOnce.Do(func() {
 		geminiService = &GeminiService{
 			systemPrompt: `You are a commit message generator that follows these rules:
-1. Write in first-person singular present tense
+1. Write in past tense
 2. Be concise and direct
-3. Output only the commit message without any explanations
+3. Output the commit message as raw text without any formatting, quotes, or code blocks
 4. Follow the format: <type>(<optional scope>): <commit message>
 5. Commit message should starts with lowercase letter.
 6. Commit message must be a maximum of 72 characters.
@@ -78,7 +78,7 @@ func (g *GeminiService) GetUserPrompt(
 	// }
 
 	return fmt.Sprintf(
-		`Generate a concise git commit message written in present tense for the following code diff with the given specifications below:
+		`Generate a concise git commit message written in past tense for the following code diff with the given specifications below:
 
 The output response must be in format:
 <type>(<optional scope>): <commit message>
