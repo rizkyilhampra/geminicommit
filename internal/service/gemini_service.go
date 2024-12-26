@@ -24,7 +24,7 @@ func NewGeminiService() *GeminiService {
 	geminiOnce.Do(func() {
 		geminiService = &GeminiService{
 			systemPrompt: `You are a commit message generator that follows these rules:
-1. Write in past tense
+1. Write in past tense (e.g., "added", "fixed", "updated")
 2. Be concise and direct
 3. Output the commit message as raw text without any formatting, quotes, or code blocks
 4. Follow the format: <type>(<optional scope>): <commit message>
